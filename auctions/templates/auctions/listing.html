@@ -1,14 +1,23 @@
 {% extends "auctions/layout.html" %}
 {% load static %}
 {% block body %}
-    <h2>Active Listings</h2>
+<h3>{{ listing.title }}</h3>
     <div>
         <div>
-            <h3>{{ listing.title }}</h3>
+            {% if active_status %}
+                {% if user.is_authenticated and listing.seller == user %}
+                    <form method="post" action="{% url 'display_listing' id=listing.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="listing-link" style="background-color: rgb(165, 15, 15);color: white;">Close this auction</button>
+                    </form>
+                {% endif %}
+            {% else %}  
+                    <p>This listing is closed. The winner is {{ listing.bids.first.bidder }}</p>
+            {% endif %}
             <p>{{ listing.description }}</p>
             <img src = {{listing.image_source}} alt="Listing Image" height=200 width="200">
             <h3>Price = {{ listing.price }}</h3>
-            {% if user.is_authenticated %}
+            {% if user.is_authenticated and active_status %}
             <form method="post" action="{% url 'place_bid' listing.id %}">
                 {% csrf_token %}
                 <input type="number" name="bid_amount" step="0.01" placeholder="Enter bid amount">

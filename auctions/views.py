@@ -80,9 +80,13 @@ def register(request):
 
 def display_listing(request, id):
     listing_to_display = Listing.objects.get(pk=id)
+    if request.method == 'POST':
+        listing_to_display.active = False
+        listing_to_display.save()
     return render(request, "auctions/listing.html", {
         "listing": listing_to_display,
-        "comments": listing_to_display.comments.all()
+        "comments": listing_to_display.comments.all(),
+        "active_status": listing_to_display.active
     })
 
 def create_listing(request):   

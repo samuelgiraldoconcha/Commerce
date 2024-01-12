@@ -7,15 +7,16 @@ class User(AbstractUser):
 
 class Listing(models.Model):
     CATEGORIES = [('NC', 'No category'),
-                  ('C1', 'Category 1'),
-                  ('C2', 'Category 2'),
-                  ('C3', 'Category 3'),]
+                  ('A', 'Aplications'),
+                  ('RE', 'Real Estate'),
+                  ('ED', 'Electronic devices'),]
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
     category = models.CharField(max_length=24, choices=CATEGORIES, default='NC')
     title = models.CharField(max_length=24)
     description = models.CharField(max_length=64)
     price = models.FloatField()
     image_source = models.CharField(max_length=200)
+    active = models.BooleanField(default = True)
 
     def __str__(self):
         return f"{self.id}: {self.seller} sells this {self.title} {self.description} starting at {self.price}"
