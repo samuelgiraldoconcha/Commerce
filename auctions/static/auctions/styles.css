@@ -1,0 +1,42 @@
+/* Flexbox container for listings */
+.listings-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Add a border to the listings */
+.listings-container a {
+    flex: 0 0 calc(33.3333% - 20px);  /* Adjust the width as needed */
+    box-sizing: border-box;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid;
+    color: black;
+}
+
+/* Style for the listing title */
+.listings-container h3 {
+    margin-bottom: 5px;
+}
+
+/* Style for the listing description */
+.listings-container p {
+    margin-bottom: 10px;
+}
+
+/* Style for the listing image */
+.listings-container img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Style for the starting price */
+.listings-container h3:last-child {
+    margin-top: 10px;
+}
+
+/* Style for the bids section */
+.listings-container #bids p {
+    margin-bottom: 5px;
+}
+

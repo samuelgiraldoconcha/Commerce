@@ -1,0 +1,26 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+{% block body %}
+    <h2>Active Listings</h2>
+    <div>
+        <div id="listing">
+            <h3>{{ listing.title }}</h3>
+            <p>{{ listing.description }}</p>
+            <img src = {{listing.image_source}} alt="Listing Image" height=200 width="200">
+            <h3>Price = {{ listing.price }}</h3>
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'place_bid' listing.id %}">
+                {% csrf_token %}
+                <input type="number" name="bid_amount" step="0.01" placeholder="Enter bid amount">
+                <input type="submit" value="Place Bid">
+            </form>
+            {% endif %}
+
+            <div id = "bids">
+                {% for bid in listing.bids.all %}
+                    <p>{{bid.bidder}} has bid {{bid.offering_price}}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div> 
+{% endblock %}
