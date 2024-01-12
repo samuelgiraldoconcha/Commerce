@@ -3,10 +3,10 @@
 {% block body %}
     <h2>{{ header }}</h2>
     <div class="listings-container">
-        {% for category in categories %}
-            <a href="{% url 'categories' id=category.id %}" class="listing-link">
+        {% for category_key, category_name in categories %}
+            <a href="{% url 'categories' key=category_key %}" class="listing-link">
                 <div class="category">
-                    <h3>{{ category.name }}</h3>
+                    <h3>{{ category_name }}</h3>
                 </div>
             </a>
         {% endfor %}

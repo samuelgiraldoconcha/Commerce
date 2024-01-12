@@ -3,7 +3,7 @@
 {% block body %}
     <h2>Active Listings</h2>
     <div>
-        <div id="listing">
+        <div>
             <h3>{{ listing.title }}</h3>
             <p>{{ listing.description }}</p>
             <img src = {{listing.image_source}} alt="Listing Image" height=200 width="200">
@@ -16,9 +16,16 @@
             </form>
             {% endif %}
 
-            <div id = "bids">
+            <div class = "bid">
                 {% for bid in listing.bids.all %}
                     <p>{{bid.bidder}} has bid {{bid.offering_price}}</p>
+                {% endfor %}
+            </div>
+            <a href="{% url 'create_comment' listing_id=listing.id %}" class="listing-link" >Crear comentario</a>
+            <div class = "comment">
+                {% for comment in comments %}
+                    <h4>{{comment.commenter}}</h4>
+                    <p>{{comment.description}}</p>
                 {% endfor %}
             </div>
         </div>

@@ -7,13 +7,17 @@ from django import forms
 from django.contrib import messages
 
 from . import util
-from auctions.models import User,Listing, Bid, categories
+from auctions.models import User,Listing, Bid, Comment
 
 class NewListing(forms.Form):
     title = forms.CharField(label='Title', max_length=50)
     description = forms.CharField(label='Description', widget= forms.Textarea, max_length=400)
     starting_bid = forms.DecimalField(label="Starting bid")
     image_url = forms.CharField(label="Image URL", max_length=400)
+    category = forms.ChoiceField(label="Category", choices=Listing.CATEGORIES)
+
+class NewComment(forms.Form):
+    description = forms.CharField(label='Description', widget= forms.Textarea, max_length=400)
 
 
 def index(request):
@@ -77,7 +81,8 @@ def register(request):
 def display_listing(request, id):
     listing_to_display = Listing.objects.get(pk=id)
     return render(request, "auctions/listing.html", {
-        "listing": listing_to_display
+        "listing": listing_to_display,
+        "comments": listing_to_display.comments.all()
     })
 
 def create_listing(request):   
@@ -88,30 +93,29 @@ def create_listing(request):
         new_description = form.cleaned_data['description']
         new_starting_bid = form.cleaned_data['starting_bid']
         new_image_url = form.cleaned_data['image_url']
+        new_category = form.cleaned_data['category']
 
-        new_listing = Listing(seller = logged_user, title = new_title, description = new_description, price = new_starting_bid, image_source = new_image_url)
+        new_listing = Listing(seller = logged_user, title = new_title, description = new_description, price = new_starting_bid, image_source = new_image_url, category=new_category)
         new_listing.save()
 
         return display_listing(request, new_listing.id)
 
     return render(request, 'auctions/create_listing.html', {'form': form})
-    
-from django.contrib import messages
 
 def place_bid(request, listing_id):
     if request.method == 'POST' and 'bid_amount' in request.POST:
         bid_amount = float(request.POST['bid_amount'])
-        listing = Listing.objects.get(pk=listing_id)
+        current_listing = Listing.objects.get(pk=listing_id)
         
-        if bid_amount >= listing.price:
+        if bid_amount >= current_listing.price:
             bid = Bid.objects.create(
-                title=listing,
+                listing=current_listing,
                 bidder=request.user,
                 offering_price=bid_amount
             )
             bid.save()
-            listing.price = bid_amount
-            listing.save()
+            current_listing.price = bid_amount
+            current_listing.save()
             messages.success(request, 'Bid placed successfully!')
         else:
             messages.error(request, 'Your bid should be greater than the current highest bid.')
@@ -124,16 +128,31 @@ def watchlist(request):
         "listings": listings,
         "header": "Watchlist"
         })
-def categories(request, category_id):
-
-    if request.method == 'POST':
-        current_category = Category.objects.get(id=category_id)
+def categories(request, key):
+    
+    if key != "index":
+        current_category = key
         listings = Listing.objects.filter(category=current_category)
         return render(request, "auctions/listings_list.html", {
             "listings": listings,
-            "header": current_category.name
+            "header": dict(Listing.CATEGORIES).get(current_category)
         })
-    return render(request,"auctions/categories.html", {
-        "categories": Category.objects.all()
-    })
-   
+    else:
+        return render(request,"auctions/categories.html", {
+            "categories": Listing.CATEGORIES
+        })
+def create_comment(request, listing_id):
+    form = NewComment(request.POST or None)
+    logged_user = request.user
+    current_listing = Listing.objects.get(id=listing_id)
+    if request.method == "POST" and form.is_valid():
+        new_description = form.cleaned_data['description']
+        new_comment = Comment(commenter=logged_user, product=current_listing,description = new_description)
+        new_comment.save()
+
+        return display_listing(request, listing_id)
+
+    return render(request, 'auctions/create_comment.html', {
+        'form': form,
+        "id": current_listing.id
+        })
